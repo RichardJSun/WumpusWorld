@@ -30,7 +30,7 @@ robot.stop()
 ### test Bluetooth ###
 
 # Create a Bluetooth object
-ble = BLE(name="NanoNav")
+ble = BLE(name="Data")
 
 ble.send(43)
 response = ble.read()
