@@ -41,7 +41,7 @@ class Player(val board: Board) {
 
         if (hasDangerSignal) {
             if (hasBreeze) {
-                potentialPits.addAll(adjacent)
+                potentialPits.addAll(adjacent.filterNot { it in safe })
             }
 
             if (hasStench) {
@@ -67,7 +67,7 @@ class Player(val board: Board) {
         }
 
         if (signals.contains(Signal.GLITTER)) {
-            if (potentialGold.isEmpty()) potentialGold.addAll(adjacent)
+            if (potentialGold.isEmpty()) potentialGold.addAll(adjacent.filterNot { it in visited || it in knownPits })
         } else {
             potentialGold.removeAll(adjacent)
         }
@@ -79,7 +79,36 @@ class Player(val board: Board) {
         }
 
         visited.add(location)
-        path.add(location)
+        // if we visited something it is safe
+        safe.add(location)
+
+        if (potentialGold.isNotEmpty()) {
+            if (potentialGold.size == 1) {
+                // only 1 potential spot
+                adjacent.find { it in potentialGold }?.let {
+                    path.add(location)
+                    return Action(Action.Type.MOVE, it)
+                }
+            }
+
+            val adjacentGlitter = adjacent.filter { it in potentialGold }
+            if (adjacentGlitter.isNotEmpty()) {
+                println("adj ${adjacentGlitter}")
+            }
+            val safeAdjacentToGlitter = adjacentGlitter.filter { pos ->
+                pos !in visited &&
+                (pos in safe ||
+                (pos !in knownPits &&
+                        pos !in potentialPits &&
+                        pos !in potentialWumpus &&
+                        pos !in visited))
+            }
+            println("safe adj ${safeAdjacentToGlitter}")
+            if (safeAdjacentToGlitter.isNotEmpty()) {
+                path.add(location)
+                return Action(Action.Type.MOVE, safeAdjacentToGlitter.first())
+            }
+        }
 
         val moveLoc = adjacent.find {
             it !in visited && (it in safe || it !in potentialWumpus && it !in knownPits && it !in potentialPits)
@@ -87,9 +116,10 @@ class Player(val board: Board) {
 
         if (moveLoc == null) {
             println("Backtracking")
-            val last = path.removeAt(path.size - 2)
+            val last = path.removeLast()
             return Action(Action.Type.MOVE, last)
         } else {
+            path.add(location)
             return Action(Action.Type.MOVE, moveLoc)
         }
     }
