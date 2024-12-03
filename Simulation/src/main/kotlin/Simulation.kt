@@ -1,28 +1,8 @@
 package nanonav
 
-class Simulation {
-    val board = Board()
+class Simulation(val board: Board) {
     val player = Player(board)
-
-    init {
-
-/*        board.cells[0][2] = Board.SpaceType.PIT
-        board.cells[0][3] = Board.SpaceType.GOLD
-        board.cells[1][0] = Board.SpaceType.PIT
-        board.cells[1][3] = Board.SpaceType.PIT
-        board.cells[2][3] = Board.SpaceType.WUMPUS
-        board.cells[3][3] = Board.SpaceType.PIT*/
-
-/*        board.cells[0][2] = Board.SpaceType.PIT
-        board.cells[0][3] = Board.SpaceType.WUMPUS
-        board.cells[1][3] = Board.SpaceType.GOLD
-        board.cells[3][2] = Board.SpaceType.PIT
-        board.cells[3][3] = Board.SpaceType.PIT*/
-
-        board.cells[0][1] = Board.SpaceType.PIT
-        board.cells[1][2] = Board.SpaceType.GOLD
-        board.cells[0][2] = Board.SpaceType.PIT
-    }
+    var solved = false
 
     fun run() {
         println("Running simulation")
@@ -40,6 +20,7 @@ class Simulation {
                 signals.add(Signal.GOLD)
             } else if (player.foundGold && player.location == board.start) {
                 println("Returned to start")
+                solved = true
                 break
             }
             println("At ${player.location}, signals: $signals")
