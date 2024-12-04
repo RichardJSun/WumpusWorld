@@ -1,5 +1,6 @@
 package nanonav
 
+import org.junit.jupiter.api.Timeout
 import kotlin.test.Test
 import kotlin.test.BeforeTest
 
@@ -12,6 +13,7 @@ object SimulationTest {
         board = Board()
     }
 
+    @Timeout(10)
     @Test
     fun `test easy world 1`() {
         // Setup board with configuration:
@@ -27,6 +29,7 @@ object SimulationTest {
         assert(simulation.solved)
     }
 
+    @Timeout(10)
     @Test
     fun `test easy world 2`() {
         // Setup board with configuration:
@@ -43,6 +46,7 @@ object SimulationTest {
         assert(simulation.solved)
     }
 
+    @Timeout(10)
     @Test
     fun `test easy world 3`() {
         // Setup board with configuration:
@@ -60,6 +64,7 @@ object SimulationTest {
         assert(simulation.solved)
     }
 
+    @Timeout(30)
     @Test
     fun `test medium world 1`() {
         // Setup board with configuration:
@@ -79,6 +84,7 @@ object SimulationTest {
         assert(simulation.solved)
     }
 
+    @Timeout(30)
     @Test
     fun `test medium world 2`() {
         // Setup board with configuration:
@@ -97,6 +103,7 @@ object SimulationTest {
         assert(simulation.solved)
     }
 
+    @Timeout(30)
     @Test
     fun `test medium world 3`() {
         // Setup board with configuration:
@@ -114,6 +121,7 @@ object SimulationTest {
         assert(simulation.solved)
     }
 
+    @Timeout(60)
     @Test
     fun `test hard world 1`() {
         // Setup board with configuration:
@@ -134,8 +142,11 @@ object SimulationTest {
         assert(simulation.solved)
     }
 
+    @Timeout(120)
     @Test
     fun `test hardest world`() {
+        // not needed to solve this BOARD, would have to assume it's solvable
+
         // Setup board with configuration:
         // ["e", "e", "h", "g"],
         // ["e", "e", "h", "w"],
