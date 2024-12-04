@@ -1,15 +1,13 @@
 package nanonav
 
+import nanonav.Board.SpaceType
 import java.awt.Point
 
 class Player(val board: Board) {
-    val safe = mutableSetOf<Point>()
-    val potentialPits = mutableSetOf<Point>()
-    val knownPits = mutableSetOf<Point>()
-    val potentialWumpus = mutableSetOf<Point>()
-    val potentialGold = mutableSetOf<Point>()
-    val visited = mutableSetOf<Point>()
+    val possible: Array<Array<MutableSet<SpaceType>>> = Array(4) { Array(4) { SpaceType.entries.toMutableSet() } }
+
     val path = mutableListOf<Point>()
+    val visited = mutableSetOf<Point>()
 
     var location: Point = board.start
 
@@ -20,7 +18,7 @@ class Player(val board: Board) {
     var index = -1
 
     init {
-        safe.add(location)
+        possible[location.y][location.x].clear()
     }
 
     fun getAction(signals: Set<Signal>): Action {
@@ -29,90 +27,57 @@ class Player(val board: Board) {
         if (signals.contains(Signal.GOLD)) {
             foundGold = true
             index = path.size - 1
-        }
+        } else possible[location.y][location.x].remove(SpaceType.GOLD)
 
         if (foundGold) {
             return Action(Action.Type.MOVE, path[index--])
         }
 
+        // we have to be safe if we're standing on it
+        possible[location.y][location.x].removeIf(SpaceType::danger)
+
+        visited.add(location)
+
         val hasBreeze = signals.contains(Signal.BREEZE)
         val hasStench = signals.contains(Signal.STENCH)
         val hasDangerSignal = hasBreeze || hasStench
 
-        if (hasDangerSignal) {
-            if (hasBreeze) {
-                potentialPits.addAll(adjacent.filterNot { it in safe })
-            }
+        if (!hasDangerSignal) {
+            adjacent.forEach { possible[it.y][it.x].removeIf(SpaceType::danger) }
+        } else if (!hasBreeze) {
+            adjacent.forEach { possible[it.y][it.x].remove(SpaceType.PIT) }
+        }  else if (!hasStench) {
+            adjacent.forEach { possible[it.y][it.x].remove(SpaceType.WUMPUS) }
+        }
 
-            if (hasStench) {
-                if (potentialWumpus.isEmpty()) {
-                    potentialWumpus.addAll(adjacent.filterNot { safe.contains(it) })
-                } else if (potentialWumpus.size == 1) {
-                    safe.addAll(adjacent.filter { it != potentialWumpus.first() })
-                    if (hasArrow) {
-                        return Action(Action.Type.SHOOT, potentialWumpus.first())
-                    }
-                }
-            } 
+        val wumpus = adjacent.filter { SpaceType.WUMPUS in possible[it.y][it.x] }
+        if (wumpus.size == 1) {
+            // if there is only one wumpus possible, shoot it
+            return Action(Action.Type.SHOOT, wumpus.first())
+        }
 
-            if (!hasStench) {
-                potentialWumpus.removeAll(adjacent)
-            }
-
-            if (!hasBreeze) {
-                potentialPits.removeAll(adjacent)
-            }
+        if (!signals.contains(Signal.GLITTER)) {
+            adjacent.forEach { possible[it.y][it.x].remove(SpaceType.GOLD) }
         } else {
-            safe.addAll(adjacent)
-        }
-
-        if (signals.contains(Signal.GLITTER)) {
-            if (potentialGold.isEmpty()) potentialGold.addAll(adjacent.filterNot { it in visited || it in knownPits })
-        } else {
-            potentialGold.removeAll(adjacent)
-        }
-
-        if (potentialPits.size == 1) {
-            // if there is only one potential pit, mark that potential pit as a guaranteed pit
-            knownPits.add(potentialPits.first())
-            potentialPits.clear()
-        }
-
-        visited.add(location)
-        // if we visited something it is safe
-        safe.add(location)
-
-        if (potentialGold.isNotEmpty()) {
-            if (potentialGold.size == 1) {
-                // only 1 potential spot
-                adjacent.find { it in potentialGold }?.let {
-                    path.add(location)
-                    return Action(Action.Type.MOVE, it)
-                }
-            }
-
-            val adjacentGlitter = adjacent.filter { it in potentialGold }
-            if (adjacentGlitter.isNotEmpty()) {
-                println("adj ${adjacentGlitter}")
-            }
-            val safeAdjacentToGlitter = adjacentGlitter.filter { pos ->
-                pos !in visited &&
-                (pos in safe ||
-                (pos !in knownPits &&
-                        pos !in potentialPits &&
-                        pos !in potentialWumpus &&
-                        pos !in visited))
-            }
-            println("safe adj ${safeAdjacentToGlitter}")
-            if (safeAdjacentToGlitter.isNotEmpty()) {
+            val glitters = adjacent.filter { SpaceType.GOLD in possible[it.y][it.x] }
+            // if there is only one gold, move to it
+            if (glitters.size == 1) {
                 path.add(location)
-                return Action(Action.Type.MOVE, safeAdjacentToGlitter.first())
+                return Action(Action.Type.MOVE, glitters.first())
+            } else {
+                // if there are multiple golds, we need to check safety first
+                val safeGlitters = glitters.filter { possible[it.y][it.x].none(SpaceType::danger) }
+
+                // visit the first one, since all will be visited eventually
+                if (safeGlitters.isNotEmpty()) {
+                    path.add(location)
+                    return Action(Action.Type.MOVE, safeGlitters.first())
+                }
             }
         }
 
-        val moveLoc = adjacent.find {
-            it !in visited && (it in safe || it !in potentialWumpus && it !in knownPits && it !in potentialPits)
-        }
+        val safeMoves = adjacent.filter { possible[it.y][it.x].none(SpaceType::danger) }
+        val moveLoc = safeMoves.find { it !in visited }
 
         if (moveLoc == null) {
             println("Backtracking")
