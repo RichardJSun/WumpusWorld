@@ -30,11 +30,10 @@ class Board {
         return valid
     }
 
-    enum class SpaceType {
+    enum class SpaceType(val danger: Boolean = false) {
         EMPTY,
-        START,
-        PIT,
-        WUMPUS,
+        PIT(danger = true),
+        WUMPUS(danger = true),
         GOLD
     }
 }
