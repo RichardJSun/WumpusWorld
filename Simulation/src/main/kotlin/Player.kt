@@ -73,6 +73,7 @@ class Player(val board: Board) {
             .filter { (_, set) -> SpaceType.WUMPUS in set }
             .map { (point, _) -> point }
         if (possibleWumpusLocs.size == 1 && targetSteps.isEmpty()) {
+            println("Found the wumpus")
             // if only 1 is possible, let's shoot it
             val adjWumpus = adjacent.find { it == possibleWumpusLocs.first() }
             if (adjWumpus != null) {
@@ -85,10 +86,7 @@ class Player(val board: Board) {
             } else {
                 // if it's not adjacent, we need to pathfind to it
                 targetSteps.clear()
-                targetSteps.addAll(pathfind(possibleWumpusLocs.first()))
-
-                // remove the last step since that is the wumpus location
-                targetSteps.removeLastOrNull()
+                targetSteps.addAll(pathfind(possibleWumpusLocs.first(), hugTarget = true))
 
                 val next = targetSteps.removeFirstOrNull()
 
@@ -133,7 +131,7 @@ class Player(val board: Board) {
         }
     }
 
-    fun pathfind(to: Point): Collection<Point> {
+    fun pathfind(to: Point, hugTarget: Boolean = false): Collection<Point> {
         val path = LinkedList<Point>()
         val visitedLocs = mutableSetOf<Point>()
         path.add(location)
@@ -146,7 +144,14 @@ class Player(val board: Board) {
                 break
             }
 
-            val safeAdjacent = board.getValidAdjacent(current).filter { possible[it.y][it.x].none(SpaceType::danger) }
+            val adj = board.getValidAdjacent(current)
+
+            if (hugTarget && to in adj) {
+                // we made it next to the target, so we're done
+                break
+            }
+
+            val safeAdjacent = adj.filter { possible[it.y][it.x].none(SpaceType::danger) }
             val next = safeAdjacent.find { it !in visitedLocs && it !in path }
             if (next != null) {
                 path.add(next)
