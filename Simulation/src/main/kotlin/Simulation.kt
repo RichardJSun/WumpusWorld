@@ -30,6 +30,10 @@ class Simulation(val board: Board) {
                 player.location = action.location
             } else if (action.type == Action.Type.SHOOT) {
                 println("Shooting at ${action.location}")
+                if (!player.hasArrow) {
+                    println("No arrow")
+                    break
+                }
                 if (board.cells[action.location.y][action.location.x] == Board.SpaceType.WUMPUS) {
                     println("Hit the Wumpus")
                     board.cells[action.location.y][action.location.x] = Board.SpaceType.EMPTY
