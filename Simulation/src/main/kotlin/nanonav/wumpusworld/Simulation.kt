@@ -3,7 +3,6 @@ package nanonav.wumpusworld
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
 import net.minecraft.block.Blocks
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
@@ -18,7 +17,7 @@ import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
 import java.util.EnumSet
 
-class Simulation(private val world: ClientWorld, private val player: ClientPlayerEntity) {
+class Simulation(private val world: ClientWorld) {
     val topLeft = BlockPos(0, 0, 0)
     val size = 4
     val startLoc = topLeft.add(0, 0, size - 1)
@@ -26,6 +25,7 @@ class Simulation(private val world: ClientWorld, private val player: ClientPlaye
     private val agent = Agent(this)
     private var arrowCount = 1
     private var goldCollected = false
+    private var entity: Entity? = null
 
     fun placeBoard(board: Array<Array<SpaceType>>) {
         for (y in 0 until 4) {
@@ -41,8 +41,12 @@ class Simulation(private val world: ClientWorld, private val player: ClientPlaye
     }
 
     fun setup() {
-        player.setPosition(startLoc.up().toBottomCenterPos())
-        player.yaw = 180f
+        if (entity == null) {
+            entity = EntityType.CAT.create(world, SpawnReason.COMMAND) ?: error("Failed to create entity")
+            world.addEntity(entity)
+        }
+        entity!!.setPosition(startLoc.up().toBottomCenterPos())
+        entity!!.yaw = 180f
         world.getEntitiesByType(
             TypeFilter.instanceOf(ArrowEntity::class.java),
             Box.enclosing(topLeft, topLeft.add(size, size, size))
@@ -51,18 +55,23 @@ class Simulation(private val world: ClientWorld, private val player: ClientPlaye
         }
     }
 
+    fun cleanup() {
+        entity?.remove(Entity.RemovalReason.DISCARDED)
+        entity = null
+    }
+
     fun step(): Boolean {
-        val signals = getSignals(player.blockPos.down()) as MutableSet
-        val locationSpace = SpaceType.entries.first { it.blockState == world.getBlockState(player.blockPos.down()) }
+        val signals = getSignals(entity!!.blockPos.down()) as MutableSet
+        val locationSpace = SpaceType.entries.first { it.blockState == world.getBlockState(entity!!.blockPos.down()) }
         if (locationSpace == SpaceType.WUMPUS) {
             error("Wumpus")
         } else if (locationSpace == SpaceType.PIT) {
             error("Pit")
         } else if (locationSpace == SpaceType.GOLD) {
             goldCollected = true
-            world.setBlockState(player.blockPos.down(), SpaceType.EMPTY.blockState)
+            world.setBlockState(entity!!.blockPos.down(), SpaceType.EMPTY.blockState)
             signals.add(Signal.GOLD)
-        } else if (goldCollected && player.blockPos.down() == startLoc) {
+        } else if (goldCollected && entity!!.blockPos.down() == startLoc) {
             // solved
             return true
         }
@@ -70,17 +79,17 @@ class Simulation(private val world: ClientWorld, private val player: ClientPlaye
         MinecraftClient.getInstance().inGameHud.chatHud.addMessage(Text.of("Signals: $signals, Actions: $actions"))
         for (action in actions) {
             when (action.type) {
-                Action.Type.TURN_LEFT -> player.yaw = player.applyRotation(BlockRotation.COUNTERCLOCKWISE_90)
-                Action.Type.TURN_RIGHT -> player.yaw = player.applyRotation(BlockRotation.CLOCKWISE_90)
+                Action.Type.TURN_LEFT -> entity!!.yaw = entity!!.applyRotation(BlockRotation.COUNTERCLOCKWISE_90)
+                Action.Type.TURN_RIGHT -> entity!!.yaw = entity!!.applyRotation(BlockRotation.CLOCKWISE_90)
                 Action.Type.FORWARD -> {
-                    val newPos = player.blockPos.offset(player.horizontalFacing)
-                    player.setPosition(newPos.toBottomCenterPos())
+                    val newPos = entity!!.blockPos.offset(entity!!.horizontalFacing)
+                    entity!!.setPosition(newPos.toBottomCenterPos())
                 }
                 Action.Type.SHOOT -> {
                     if (arrowCount-- == 0) {
                         error("No arrows")
                     }
-                    val shootPos = player.blockPos.down().offset(player.horizontalFacing)
+                    val shootPos = entity!!.blockPos.down().offset(entity!!.horizontalFacing)
 
                     val arrow = EntityType.ARROW.create(world, SpawnReason.COMMAND) ?: error("Failed to create arrow")
                     arrow.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED
@@ -93,16 +102,16 @@ class Simulation(private val world: ClientWorld, private val player: ClientPlaye
                     }
                 }
             }
-            val locationSpace = SpaceType.entries.first { it.blockState == world.getBlockState(player.blockPos.down()) }
+            val locationSpace = SpaceType.entries.first { it.blockState == world.getBlockState(entity!!.blockPos.down()) }
             if (locationSpace == SpaceType.WUMPUS) {
                 error("Wumpus")
             } else if (locationSpace == SpaceType.PIT) {
                 error("Pit")
             } else if (locationSpace == SpaceType.GOLD) {
                 goldCollected = true
-                world.setBlockState(player.blockPos.down(), SpaceType.EMPTY.blockState)
+                world.setBlockState(entity!!.blockPos.down(), SpaceType.EMPTY.blockState)
                 signals.add(Signal.GOLD) // unused
-            } else if (goldCollected && player.blockPos.down() == startLoc) {
+            } else if (goldCollected && entity!!.blockPos.down() == startLoc) {
                 // solved
                 return true
             }

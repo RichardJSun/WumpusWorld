@@ -23,7 +23,7 @@ object WumpusWorldCommand {
 
         SimulationController.stopSimulation()
 
-        SimulationController.simulation = Simulation(world, context.source.player)
+        SimulationController.simulation = Simulation(world)
 
         SimulationController.simulation!!.placeBoard(board)
 
@@ -34,7 +34,7 @@ object WumpusWorldCommand {
     fun simulate(context: CommandContext<FabricClientCommandSource>): Int {
         if (SimulationController.simulation == null) {
             // Assume we made a custom board
-            SimulationController.simulation = Simulation(context.source.world, context.source.player)
+            SimulationController.simulation = Simulation(context.source.world)
         }
         SimulationController.startSimulation()
         context.source.sendFeedback(Text.of("Simulation started"))

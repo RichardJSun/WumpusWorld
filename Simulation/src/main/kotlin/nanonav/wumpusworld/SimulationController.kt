@@ -39,6 +39,7 @@ object SimulationController {
 
     fun stopSimulation() {
         if (simulation == null) return
+        simulation?.cleanup()
         simulationJob?.cancel()
         simulation = null
     }
