@@ -118,14 +118,14 @@ class Agent(val sim: Simulation) {
                 .filter { (point, _) -> point !in adjacent }
                 .forEach { (_, set) -> set.remove(SpaceType.GOLD) }
 
-            val glitters = adjacent.filter { SpaceType.GOLD in possible[it.z][it.x] }
+            val adjGlitters = adjacent.filter { SpaceType.GOLD in possible[it.z][it.x] }
             // if there is only one gold, move to it
-            if (glitters.size == 1) {
+            if (adjGlitters.size == 1) {
                 path.add(location)
-                return getMoveAction(glitters.first()).also(::updateState)
-            } else {
+                return getMoveAction(adjGlitters.first()).also(::updateState)
+            } else if (adjGlitters.isNotEmpty()) {
                 // if there are multiple golds, we need to check safety first
-                val safeGlitters = glitters.filter { possible[it.z][it.x].none(SpaceType::danger) }
+                val safeGlitters = adjGlitters.filter { possible[it.z][it.x].none(SpaceType::danger) }
 
                 // visit the first one, since all will be visited eventually
                 if (safeGlitters.isNotEmpty()) {
@@ -135,10 +135,40 @@ class Agent(val sim: Simulation) {
             }
         }
 
+        val glitters = possible.withIndex()
+            .flatMap { (y, row) -> row.mapIndexed { x, set -> BlockPos(x, 0, y) to set } }
+            .filter { (_, set) -> SpaceType.GOLD in set }
+            .map { (point, _) -> point }
+        if (glitters.isNotEmpty()) {
+            // there are gold possibilites
+            if (glitters.size == 1) {
+                // if there is only one, it must be gold
+                possible[glitters.first().z][glitters.first().x].clear()
+                possible[glitters.first().z][glitters.first().x].add(SpaceType.GOLD)
+
+                // lets try to generate a path there
+                val toGold = pathfind(glitters.first())
+
+                if (toGold.isNotEmpty()) {
+                    targetSteps.clear()
+                    targetSteps.addAll(toGold)
+
+                    val next = targetSteps.removeFirstOrNull()
+
+                    if (next != null) {
+                        // take the first step
+                        path.add(location)
+                        return getMoveAction(next).also(::updateState)
+                    }
+                }
+            }
+        }
+
         val safeMoves = adjacent.filter { possible[it.z][it.x].none(SpaceType::danger) }
         val moveLoc = safeMoves.find { it !in visited }
 
         if (moveLoc == null) {
+            // no safe move found
             val last = path.removeLast()
             return getMoveAction(last).also(::updateState)
         } else {
