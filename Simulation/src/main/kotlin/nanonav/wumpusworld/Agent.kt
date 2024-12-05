@@ -15,7 +15,7 @@ class Agent(val sim: Simulation) {
     var direction = sim.startFacing
 
     var foundGold = false
-    var hasArrow = false
+    var hasArrow = true
 
     init {
         possible[location.z][location.x].clear()

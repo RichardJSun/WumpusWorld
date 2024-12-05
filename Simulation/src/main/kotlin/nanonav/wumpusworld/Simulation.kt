@@ -70,13 +70,13 @@ class Simulation(private val world: ClientWorld, private val player: ClientPlaye
                     if (arrowCount-- == 0) {
                         error("No arrows")
                     }
-                    val shootPos = player.blockPos.offset(player.horizontalFacing)
+                    val shootPos = player.blockPos.down().offset(player.horizontalFacing)
 
                     val arrow = ArrowEntity(EntityType.ARROW, world)
                     arrow.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED
                     arrow.setPosition(shootPos.toCenterPos())
 
-                    if (world.getBlockState(shootPos).block == SpaceType.WUMPUS.blockState) {
+                    if (world.getBlockState(shootPos).block == SpaceType.WUMPUS.blockState.block) {
                         world.setBlockState(shootPos, SpaceType.EMPTY.blockState)
                     }
                 }
