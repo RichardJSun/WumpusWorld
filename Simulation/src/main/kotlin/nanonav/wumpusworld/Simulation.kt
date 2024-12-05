@@ -1,5 +1,6 @@
 package nanonav.wumpusworld
 
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
 import net.minecraft.block.Blocks
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.network.ClientPlayerEntity
@@ -65,9 +66,8 @@ class Simulation(private val world: ClientWorld, private val player: ClientPlaye
             // solved
             return true
         }
-        MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of("Signals: $signals"), true)
         val actions = agent.getActions(signals)
-        MinecraftClient.getInstance().inGameHud.chatHud.addMessage(Text.of("Actions: $actions"))
+        MinecraftClient.getInstance().inGameHud.chatHud.addMessage(Text.of("Signals: $signals, Actions: $actions"))
         for (action in actions) {
             when (action.type) {
                 Action.Type.TURN_LEFT -> player.yaw = player.applyRotation(BlockRotation.COUNTERCLOCKWISE_90)
@@ -126,5 +126,9 @@ class Simulation(private val world: ClientWorld, private val player: ClientPlaye
 
     fun getValidAdjacent(pos: BlockPos): Set<BlockPos> {
         return Direction.Type.HORIZONTAL.map { pos.offset(it) }.filterTo(mutableSetOf()) { it.x >= topLeft.x && it.x < topLeft.x + size && it.z >= topLeft.z && it.z < topLeft.z + size }
+    }
+
+    fun drawDebug(ctx: WorldRenderContext) {
+        agent.drawDebug(ctx)
     }
 }

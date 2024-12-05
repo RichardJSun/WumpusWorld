@@ -1,11 +1,13 @@
 package nanonav.wumpusworld
 
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
+import net.minecraft.client.render.debug.DebugRenderer
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import java.util.LinkedList
 
 class Agent(val sim: Simulation) {
-    val possible: Array<Array<MutableSet<SpaceType>>> = Array(4) { Array(4) { SpaceType.entries.toMutableSet() } }
+    val possible: Array<Array<MutableSet<SpaceType>>> = Array(4) { Array(4) { SpaceType.entries.filter { it != SpaceType.HOME }.toMutableSet() } }
 
     val path = mutableListOf<BlockPos>()
     val visited = mutableSetOf<BlockPos>()
@@ -198,5 +200,38 @@ class Agent(val sim: Simulation) {
 
         path.removeFirstOrNull() // remove the starting location
         return path;
+    }
+
+    fun drawDebug(context: WorldRenderContext) {
+        for (z in possible.indices) {
+            for (x in possible[z].indices) {
+                val pos = BlockPos(x, 1, z)
+                val spaceTypes = possible[z][x]
+
+                val text = spaceTypes.joinToString("") { type ->
+                    when (type) {
+                        SpaceType.EMPTY -> "E"
+                        SpaceType.PIT -> "P"
+                        SpaceType.WUMPUS -> "W"
+                        SpaceType.GOLD -> "G"
+                        SpaceType.HOME -> "H"
+                    }
+                }
+
+                DebugRenderer.drawString(
+                    context.matrixStack()!!,
+                    context.consumers()!!,
+                    text,
+                    pos.x + 0.5,
+                    pos.y + 1.5,
+                    pos.z + 0.5,
+                    0xFFFFFF,
+                    0.01f,
+                    true,
+                    0f,
+                    true
+                )
+            }
+        }
     }
 }

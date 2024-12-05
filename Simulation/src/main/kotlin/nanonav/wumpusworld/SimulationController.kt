@@ -7,6 +7,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
 
@@ -40,6 +41,10 @@ object SimulationController {
         if (simulation == null) return
         simulationJob?.cancel()
         simulation = null
+    }
+
+    fun drawSimulationDebug(ctx: WorldRenderContext) {
+        simulation?.drawDebug(ctx)
     }
 }
 
