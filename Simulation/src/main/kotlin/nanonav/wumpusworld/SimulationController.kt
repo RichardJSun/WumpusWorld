@@ -16,6 +16,7 @@ object SimulationController {
 
     fun startSimulation() {
         if (simulation == null) return
+        simulation!!.setup()
         simulationJob = CoroutineScope(Dispatchers.MC).launch {
             var shouldRun = true
             while (shouldRun) {

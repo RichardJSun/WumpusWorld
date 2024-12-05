@@ -10,7 +10,6 @@ import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener
 import net.minecraft.resource.ResourceManager
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
-import net.minecraft.util.math.BlockPos
 import java.util.concurrent.CompletableFuture
 import kotlin.collections.iterator
 
@@ -37,7 +36,6 @@ object WumpusWorldCommand {
             // Assume we made a custom board
             SimulationController.simulation = Simulation(context.source.world, context.source.player)
         }
-        SimulationController.simulation!!.setup()
         SimulationController.startSimulation()
         context.source.sendFeedback(Text.of("Simulation started"))
         return 1

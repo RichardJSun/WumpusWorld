@@ -4,12 +4,16 @@ import net.minecraft.block.Blocks
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.client.world.ClientWorld
+import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
+import net.minecraft.entity.SpawnReason
 import net.minecraft.entity.projectile.ArrowEntity
 import net.minecraft.entity.projectile.PersistentProjectileEntity
 import net.minecraft.text.Text
 import net.minecraft.util.BlockRotation
+import net.minecraft.util.TypeFilter
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Box
 import net.minecraft.util.math.Direction
 import java.util.EnumSet
 
@@ -38,6 +42,12 @@ class Simulation(private val world: ClientWorld, private val player: ClientPlaye
     fun setup() {
         player.setPosition(startLoc.up().toBottomCenterPos())
         player.yaw = 180f
+        world.getEntitiesByType(
+            TypeFilter.instanceOf(ArrowEntity::class.java),
+            Box.enclosing(startLoc, startLoc.add(size, size, size))
+        ) { true }.forEach {
+            it.remove(Entity.RemovalReason.DISCARDED)
+        }
     }
 
     fun step(): Boolean {
@@ -72,9 +82,11 @@ class Simulation(private val world: ClientWorld, private val player: ClientPlaye
                     }
                     val shootPos = player.blockPos.down().offset(player.horizontalFacing)
 
-                    val arrow = ArrowEntity(EntityType.ARROW, world)
+                    val arrow = EntityType.ARROW.create(world, SpawnReason.COMMAND) ?: error("Failed to create arrow")
                     arrow.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED
-                    arrow.setPosition(shootPos.toCenterPos())
+                    arrow.setPosition(shootPos.up(10).toCenterPos())
+                    arrow.setVelocityClient(0.0, -1.0, 0.0)
+                    world.addEntity(arrow)
 
                     if (world.getBlockState(shootPos).block == SpaceType.WUMPUS.blockState.block) {
                         world.setBlockState(shootPos, SpaceType.EMPTY.blockState)
