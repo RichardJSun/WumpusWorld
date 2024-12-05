@@ -1,4 +1,4 @@
-package nanonav
+package nanonav.wumpusworld
 
 enum class Signal(val bit: Byte) {
     NOTHING(0),
