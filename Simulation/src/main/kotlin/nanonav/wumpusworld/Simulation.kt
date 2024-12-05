@@ -45,7 +45,7 @@ class Simulation(private val world: ClientWorld, private val player: ClientPlaye
         player.yaw = 180f
         world.getEntitiesByType(
             TypeFilter.instanceOf(ArrowEntity::class.java),
-            Box.enclosing(startLoc, startLoc.add(size, size, size))
+            Box.enclosing(topLeft, topLeft.add(size, size, size))
         ) { true }.forEach {
             it.remove(Entity.RemovalReason.DISCARDED)
         }
