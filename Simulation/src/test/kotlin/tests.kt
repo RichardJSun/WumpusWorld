@@ -10,7 +10,7 @@ object SimulationTest {
 
     @BeforeTest
     fun setup() {
-        board = Board()
+        board = Board("board_config.txt")
     }
 
     @Timeout(10)
@@ -26,7 +26,7 @@ object SimulationTest {
 
         val simulation = Simulation(board)
         simulation.run()
-        assert(simulation.solved)
+        assert(simulation.success)
     }
 
     @Timeout(10)
@@ -43,7 +43,7 @@ object SimulationTest {
 
         val simulation = Simulation(board)
         simulation.run()
-        assert(simulation.solved)
+        assert(simulation.success)
     }
 
     @Timeout(10)
@@ -61,7 +61,7 @@ object SimulationTest {
 
         val simulation = Simulation(board)
         simulation.run()
-        assert(simulation.solved)
+        assert(simulation.success)
     }
 
     @Timeout(30)
@@ -81,7 +81,7 @@ object SimulationTest {
 
         val simulation = Simulation(board)
         simulation.run()
-        assert(simulation.solved)
+        assert(simulation.success)
     }
 
     @Timeout(30)
@@ -100,7 +100,7 @@ object SimulationTest {
 
         val simulation = Simulation(board)
         simulation.run()
-        assert(simulation.solved)
+        assert(simulation.success)
     }
 
     @Timeout(30)
@@ -118,7 +118,7 @@ object SimulationTest {
 
         val simulation = Simulation(board)
         simulation.run()
-        assert(simulation.solved)
+        assert(simulation.success)
     }
 
     @Timeout(60)
@@ -139,7 +139,7 @@ object SimulationTest {
 
         val simulation = Simulation(board)
         simulation.run()
-        assert(simulation.solved)
+        assert(simulation.success)
     }
 
     @Timeout(120)
@@ -161,6 +161,6 @@ object SimulationTest {
 
         val simulation = Simulation(board)
         simulation.run()
-        assert(simulation.solved)
+        assert(simulation.success)
     }
 }
