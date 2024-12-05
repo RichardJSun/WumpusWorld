@@ -62,7 +62,9 @@ class Agent(val sim: Simulation) {
             adjacent.forEach { possible[it.z][it.x].remove(SpaceType.PIT) }
         }  else if (!hasStench) {
             adjacent.forEach { possible[it.z][it.x].remove(SpaceType.WUMPUS) }
-        } else if (hasStench) {
+        }
+
+        if (hasStench) {
             // everything not adjacent cannot be the wumpus
             possible.withIndex()
                 .flatMap { (y, row) -> row.mapIndexed { x, set -> BlockPos(x, 0, y) to set } }
@@ -110,6 +112,12 @@ class Agent(val sim: Simulation) {
         if (!signals.contains(Signal.GLITTER)) {
             adjacent.forEach { possible[it.z][it.x].remove(SpaceType.GOLD) }
         } else {
+            // everything not adjacent can't be gold
+            possible.withIndex()
+                .flatMap { (y, row) -> row.mapIndexed { x, set -> BlockPos(x, 0, y) to set } }
+                .filter { (point, _) -> point !in adjacent }
+                .forEach { (_, set) -> set.remove(SpaceType.GOLD) }
+
             val glitters = adjacent.filter { SpaceType.GOLD in possible[it.z][it.x] }
             // if there is only one gold, move to it
             if (glitters.size == 1) {
