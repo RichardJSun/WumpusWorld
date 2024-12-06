@@ -6,6 +6,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.SpawnReason
 import net.minecraft.entity.projectile.ArrowEntity
 import net.minecraft.entity.projectile.PersistentProjectileEntity
@@ -25,7 +26,7 @@ class Simulation(private val world: ClientWorld) {
     private val agent = Agent(this)
     private var arrowCount = 1
     private var goldCollected = false
-    private var entity: Entity? = null
+    private var entity: LivingEntity? = null
 
     fun placeBoard(board: Array<Array<SpaceType>>) {
         for (y in 0 until 4) {
@@ -45,8 +46,8 @@ class Simulation(private val world: ClientWorld) {
             entity = EntityType.CAT.create(world, SpawnReason.COMMAND) ?: error("Failed to create entity")
             world.addEntity(entity)
         }
-        entity!!.setPosition(startLoc.up().toBottomCenterPos())
-        entity!!.yaw = 180f
+        entity!!.refreshPositionAndAngles(startLoc.up(), 180f, 0f)
+        entity!!.snapToYaw(180f)
         world.getEntitiesByType(
             TypeFilter.instanceOf(ArrowEntity::class.java),
             Box.enclosing(topLeft, topLeft.add(size, size, size))
@@ -79,8 +80,8 @@ class Simulation(private val world: ClientWorld) {
         MinecraftClient.getInstance().inGameHud.chatHud.addMessage(Text.of("Signals: $signals, Actions: $actions"))
         for (action in actions) {
             when (action.type) {
-                Action.Type.TURN_LEFT -> entity!!.yaw = entity!!.applyRotation(BlockRotation.COUNTERCLOCKWISE_90)
-                Action.Type.TURN_RIGHT -> entity!!.yaw = entity!!.applyRotation(BlockRotation.CLOCKWISE_90)
+                Action.Type.TURN_LEFT -> entity!!.snapToYaw(entity!!.applyRotation(BlockRotation.COUNTERCLOCKWISE_90))
+                Action.Type.TURN_RIGHT -> entity!!.snapToYaw(entity!!.applyRotation(BlockRotation.CLOCKWISE_90))
                 Action.Type.FORWARD -> {
                     val newPos = entity!!.blockPos.offset(entity!!.horizontalFacing)
                     entity!!.setPosition(newPos.toBottomCenterPos())
@@ -139,5 +140,14 @@ class Simulation(private val world: ClientWorld) {
 
     fun drawDebug(ctx: WorldRenderContext) {
         agent.drawDebug(ctx)
+    }
+
+    private fun LivingEntity.snapToYaw(yaw: Float) {
+        this.yaw = yaw
+        this.headYaw = yaw
+        this.bodyYaw = yaw
+        this.prevYaw = yaw
+        this.prevHeadYaw = yaw
+        this.prevBodyYaw = yaw
     }
 }
