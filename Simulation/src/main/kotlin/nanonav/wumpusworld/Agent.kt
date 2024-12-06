@@ -4,14 +4,13 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
 import net.minecraft.client.render.debug.DebugRenderer
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
-import java.util.LinkedList
 
 class Agent(val sim: Simulation) {
     val possible: Array<Array<MutableSet<SpaceType>>> = Array(4) { Array(4) { SpaceType.entries.filter { it != SpaceType.HOME }.toMutableSet() } }
 
-    val path = mutableListOf<BlockPos>()
+    val path = ArrayDeque<BlockPos>()
     val visited = mutableSetOf<BlockPos>()
-    val targetSteps = mutableListOf<BlockPos>()
+    val targetSteps = ArrayDeque<BlockPos>()
 
     var location = sim.startLoc
     var direction = sim.startFacing
@@ -28,6 +27,7 @@ class Agent(val sim: Simulation) {
         val adjacent = sim.getValidAdjacent(location)
 
         if (signals.contains(Signal.GOLD)) {
+            // FIXME: this signal doesn't trigger if it happens in the middle of an action
             foundGold = true
             targetSteps.clear()
             targetSteps.addAll(pathfind(sim.startLoc))
@@ -206,7 +206,7 @@ class Agent(val sim: Simulation) {
     }
 
     private fun pathfind(to: BlockPos, hugTarget: Boolean = false): Collection<BlockPos> {
-        val path = LinkedList<BlockPos>()
+        val path = ArrayDeque<BlockPos>()
         val visitedLocs = mutableSetOf<BlockPos>()
         path.add(location)
         visitedLocs.add(location)

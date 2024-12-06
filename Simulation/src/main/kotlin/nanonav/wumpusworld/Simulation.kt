@@ -109,9 +109,9 @@ class Simulation(private val world: ClientWorld) {
             } else if (locationSpace == SpaceType.PIT) {
                 error("Pit")
             } else if (locationSpace == SpaceType.GOLD) {
-                goldCollected = true
-                world.setBlockState(entity!!.blockPos.down(), SpaceType.EMPTY.blockState)
-                signals.add(Signal.GOLD) // unused
+                // goldCollected = true
+                // world.setBlockState(entity!!.blockPos.down(), SpaceType.EMPTY.blockState)
+                // signals.add(Signal.GOLD) // unused
             } else if (goldCollected && entity!!.blockPos.down() == startLoc) {
                 // solved
                 return true
