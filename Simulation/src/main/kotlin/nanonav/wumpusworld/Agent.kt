@@ -243,7 +243,7 @@ class Agent(val sim: Simulation) {
     fun drawDebug(context: WorldRenderContext) {
         for (z in possible.indices) {
             for (x in possible[z].indices) {
-                val pos = BlockPos(x, 1, z)
+                val pos = BlockPos(x, 0, z).toCenterPos()
                 val spaceTypes = possible[z][x]
 
                 val text = spaceTypes.joinToString("") { type ->
@@ -260,9 +260,9 @@ class Agent(val sim: Simulation) {
                     context.matrixStack()!!,
                     context.consumers()!!,
                     text,
-                    pos.x + 0.5,
-                    pos.y + 1.5,
-                    pos.z + 0.5,
+                    pos.x,
+                    pos.y,
+                    pos.z,
                     0xFFFFFF,
                     0.01f,
                     true,
