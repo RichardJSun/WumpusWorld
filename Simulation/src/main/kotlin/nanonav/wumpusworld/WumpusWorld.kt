@@ -5,6 +5,7 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientWorldEvents
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper
 import net.minecraft.resource.ResourceType
@@ -41,6 +42,10 @@ object WumpusWorld : ModInitializer {
 
 		WorldRenderEvents.BEFORE_DEBUG_RENDER.register { context ->
 			SimulationController.drawSimulationDebug(context)
+		}
+
+		ClientWorldEvents.AFTER_CLIENT_WORLD_CHANGE.register { mc, world ->
+			SimulationController.stopSimulation()
 		}
 	}
 }
