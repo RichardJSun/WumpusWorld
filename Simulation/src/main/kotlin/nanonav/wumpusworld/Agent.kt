@@ -205,39 +205,42 @@ class Agent(val sim: Simulation) {
         }
     }
 
+    /***
+     * @param hugTarget if true, the path will be generated to reach a single block away from the target
+     */
     private fun pathfind(to: BlockPos, hugTarget: Boolean = false): Collection<BlockPos> {
-        val path = ArrayDeque<BlockPos>()
+        val queue = ArrayDeque<BlockPos>()
         val visitedLocs = mutableSetOf<BlockPos>()
-        path.add(location)
+        val parent = mutableMapOf<BlockPos, BlockPos>()
+
+        queue.add(location)
         visitedLocs.add(location)
 
-        while (path.isNotEmpty()) {
-            val current = path.last()
-            if (current == to) {
-                // we made it!
-                break
-            }
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
 
             val adj = sim.getValidAdjacent(current)
-
-            if (hugTarget && to in adj) {
-                // we made it next to the target, so we're done
-                break
+            if (current == to || (hugTarget && to in adj)) {
+                val path = ArrayDeque<BlockPos>()
+                var node = current
+                while (node != location) {
+                    path.addFirst(node)
+                    node = parent[node]!!
+                }
+                return path
             }
 
             val safeAdjacent = adj.filter { possible[it.z][it.x].none(SpaceType::danger) }
-            val next = safeAdjacent.find { it !in visitedLocs && it !in path }
-            if (next != null) {
-                path.add(next)
-                visitedLocs.add(next)
-            } else {
-                // backtrack
-                path.removeLast()
+            for (next in safeAdjacent) {
+                if (next !in visitedLocs) {
+                    queue.add(next)
+                    visitedLocs.add(next)
+                    parent[next] = current
+                }
             }
         }
 
-        path.removeFirstOrNull() // remove the starting location
-        return path;
+        return emptyList()
     }
 
     fun drawDebug(context: WorldRenderContext) {
