@@ -4,7 +4,7 @@ from typing import Set, List, Tuple
 import time
 
 # From previous code:
-# We assume NanoBot and BLE classes are from your ArduinoPython code
+# We assume NanoBot and BLE classes are from the ArduinoPython code
 from nanonav import BLE, NanoBot
 
 # ---- Enums and classes for Wumpus World logic ----
