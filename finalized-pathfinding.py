@@ -389,7 +389,7 @@ while True:
 
     if not actions:
         print("No actions to perform. Possibly done or stuck.")
-        # You may want to break or continue depending on logic
+        # may want to break or continue depending on logic
         # break
     else:
         perform_actions(robot, actions)
