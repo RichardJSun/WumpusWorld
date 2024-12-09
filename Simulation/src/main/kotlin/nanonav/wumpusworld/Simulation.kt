@@ -124,12 +124,7 @@ class Simulation(private val world: ClientWorld) {
         val spaces = getValidAdjacent(location).map { world.getBlockState(it) }.map { SpaceType.entries.first { s -> s.blockState == it } }
         val signals = EnumSet.noneOf(Signal::class.java)
         spaces.forEach {
-            when (it) {
-                SpaceType.PIT -> signals.add(Signal.BREEZE)
-                SpaceType.WUMPUS -> signals.add(Signal.STENCH)
-                SpaceType.GOLD -> signals.add(Signal.GLITTER)
-                else -> {}
-            }
+            signals.add(it.signal ?: Signal.NOTHING)
         }
         return signals
     }

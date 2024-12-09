@@ -5,7 +5,7 @@ import net.minecraft.client.render.debug.DebugRenderer
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 
-class Agent(val sim: Simulation) {
+class Agent(private val sim: Simulation) {
     val possible: Array<Array<MutableSet<SpaceType>>> = Array(4) { Array(4) { SpaceType.entries.filter { it != SpaceType.HOME }.toMutableSet() } }
 
     val path = ArrayDeque<BlockPos>()
