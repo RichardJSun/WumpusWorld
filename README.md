@@ -35,7 +35,9 @@ This branch lets you simulate the algorithm in a virtual Minecraft environment i
    ```
 2. Open the `SIMULATION` folder in IntelliJ (preferred) or VSCode.
    - **Do not open the entire repository**.
-   [boardfolderdirectory.png](https://share.cleanshot.com/fVBSlwtC)
+
+   ![image](https://github.com/user-attachments/assets/b1680394-db0e-4eb2-8a16-94c24c0d7435)
+
 3. Ensure your IDE recognizes the `.gradle` folder:
    - If it doesn't, manually open it and install the needed dependencies.
 4. Build the project:
@@ -43,7 +45,8 @@ This branch lets you simulate the algorithm in a virtual Minecraft environment i
    ./gradlew build
    ```
 5. Run the `Minecraft Client` configuration.
-   [ConfigList](https://share.cleanshot.com/ZF6YzBKm)
+
+   ![image](https://github.com/user-attachments/assets/8b3bfcba-2fba-4079-b34f-8dc8009b1a8d)
 
 **Note:** The first-time compilation may take up to **4 minutes**.
 
@@ -60,7 +63,7 @@ This branch lets you simulate the algorithm in a virtual Minecraft environment i
    - **Game Rules**: 
      - Disable weather, advance time/day, all spawning, and mob loot.
 
-   [Watch a video on how to create the Minecraft world with the right configurations.](howtocreateMCworldWithRightConfigs.mp4)
+   [Watch a video on how to create the Minecraft world with the right configurations.](https://share.cleanshot.com/Q85XxV15)
 
 3. Once in the world:
    - Teleport to the starting coordinates:
@@ -95,7 +98,10 @@ This branch lets you simulate the algorithm in a virtual Minecraft environment i
    ```
 
 #### Option 2: Save boards as `.txt` files
-1. Navigate to the `/boards` directory. *[folder location](https://share.cleanshot.com/Wwhf33ZS)*
+1. Navigate to the `/boards` directory.
+
+![image](https://github.com/user-attachments/assets/2b8aaf61-0cfe-4530-8a2b-8b334844a835)
+
 2. Create a new `.txt` file with a 4x4 character grid:
    - `P`: Pit
    - `G`: Gold
