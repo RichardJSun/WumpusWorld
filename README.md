@@ -2,8 +2,7 @@
 
 This repository contains two main branches that allow you to reproduce and test our Wumpus World solving algorithm. Depending on your available resources, you can choose between running the algorithm on Arduino robots or simulating it in a Minecraft virtual environment.
 
-You can learn more about "Wumpus World" and our project here!
--> https://sites.google.com/view/wumpusworld/home
+You can learn more about "Wumpus World" and our project [here!](https://sites.google.com/view/wumpusworld/home)
 
 ## Code Branch Overview
 
