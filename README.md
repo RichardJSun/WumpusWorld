@@ -31,7 +31,7 @@ This branch lets you simulate the algorithm in a virtual Minecraft environment i
 #### How to Set Up
 1. Clone the repository:
    ```bash
-   git clone https://github.com/RichardJSun/WumpusWorld.git
+   git clone --branch minecraft https://github.com/RichardJSun/WumpusWorld.git
    ```
 2. Open the `SIMULATION` folder in IntelliJ (preferred) or VSCode.
    - **Do not open the entire repository**.
